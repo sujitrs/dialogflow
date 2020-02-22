@@ -31,6 +31,78 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     agent.add(`I'm sorry, can you try again?`);
   }
   
+  ////////////////////////////////////////
+  function Show_VAT_Ledger(agent){
+    var tin= agent.parameters.tin;
+    return ledger(tin).then((value) => {
+        agent.add('VAT Ledger '+value);
+      }).catch(() => {
+        agent.add('Failed to get VAT Ledger');
+      });  
+  }
+
+  function ledger(tin){
+    return new Promise((resolve, reject) => {
+        const https = require('http');
+        const options = {
+            hostname: BASE_HOST,
+            port: BASE_PORT,
+            path: PATH_SHOW_VAT_LEDGER+'/'+tin,
+            method: 'GET'
+        };
+
+        const req = https.request(options, res => {
+        console.log(`statusCode: ${res.statusCode}`);
+        res.on('data', d => {
+        var jsonObj = JSON.parse(d);
+        console.log(jsonObj.res_data.vatledger);
+        resolve(jsonObj.res_data.vatledger);
+        });
+    });
+
+        req.on('error', error => {
+        console.error(error);
+        reject(error);
+    });
+        req.end();
+        });
+  }
+//////////////////////////////////////////
+  function Show_My_Notices(agent){
+    var tin= agent.parameters.tin;
+    return notices(tin).then((value) => {
+        agent.add('List of Notices '+value);
+      }).catch(() => {
+        agent.add('Failed to get Notices');
+      });  
+  }
+
+  function notices(tin){
+    return new Promise((resolve, reject) => {
+        const https = require('http');
+        const options = {
+            hostname: BASE_HOST,
+            port: BASE_PORT,
+            path: PATH_SHOW_MY_NOTICES+'/'+tin,
+            method: 'GET'
+        };
+
+        const req = https.request(options, res => {
+        console.log(`statusCode: ${res.statusCode}`);
+        res.on('data', d => {
+        var jsonObj = JSON.parse(d);
+        console.log(jsonObj.res_data.notices);
+        resolve(jsonObj.res_data.notices);
+        });
+    });
+
+        req.on('error', error => {
+        console.error(error);
+        reject(error);
+    });
+        req.end();
+        });
+  }
   
   function VAT_Tax_Liability(agent){
     
@@ -69,8 +141,127 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             req.end();
             });
     }
-  
-  //"calculate/math/paye.php?pay_period=month&salary=400000000000&benefits=0&deduct_lst=yes&deduct_social=yes&relief=0&residency=resident&email=results@calculator.co.ke&rand=34793941"
+  /////////////////////////////////////////////tax_pay_defaulter/
+  function tax_pay_defaulter(agent)
+  {
+    var tin= agent.parameters.tin;
+    return pdefaulter(tin).then((value) => {
+      agent.add(value);
+    }).catch(() => {
+      agent.add('Failed to get status of tax payment defaulter');
+    });
+  }
+
+  function pdefaulter(tin){
+    return new Promise((resolve, reject) => {
+        const https = require('http');
+        const options = {
+            hostname: BASE_HOST,
+            port: BASE_PORT,
+            path: PATH_IS_TAX_PAY_DEFAULTER+'/'+tin,//+'/'+month+'/2020',
+            method: 'GET'
+        };
+
+        const req = https.request(options, res => {
+        console.log(`statusCode: ${res.statusCode}`);
+        res.on('data', d => {
+        var jsonObj = JSON.parse(d);
+        console.log(jsonObj.res_data.TaxPayDefaulter);
+        resolve(jsonObj.res_data.TaxPayDefaulter);
+        });
+    });
+
+        req.on('error', error => {
+        console.error(error);
+        reject(error);
+    });
+        req.end();
+        });
+
+  }
+  //////tax_pay_defaulter////////////////////////////
+
+  //////////Start tax_return_defaulter
+  function tax_return_defaulter(agent)
+  {
+    var tin= agent.parameters.tin;
+    return rdefaulter(tin).then((value) => {
+      agent.add(value);
+    }).catch(() => {
+      agent.add('Failed to get status (Yes/No) of tax return defaulter');
+    });
+  }
+
+  function rdefaulter(tin){
+    return new Promise((resolve, reject) => {
+        const https = require('http');
+        const options = {
+            hostname: BASE_HOST,
+            port: BASE_PORT,
+            path: PATH_IS_TAX_RETURN_DEFAULTER+'/'+tin,//+'/'+month+'/2020',
+            method: 'GET'
+        };
+
+        const req = https.request(options, res => {
+        console.log(`statusCode: ${res.statusCode}`);
+        res.on('data', d => {
+        var jsonObj = JSON.parse(d);
+        console.log(jsonObj.res_data.TaxReturnDefaulter);
+        resolve(jsonObj.res_data.TaxReturnDefaulter);
+        });
+    });
+
+        req.on('error', error => {
+        console.error(error);
+        reject(error);
+    });
+        req.end();
+        });
+
+  }
+
+/////////Ends tax_return_defaulter
+
+
+//Start is_notice
+function is_notice(agent){
+    var tin= agent.parameters.tin;
+    return notice(tin).then((value) => {
+      agent.add(value);
+    }).catch(() => {
+      agent.add('Failed to get status (Yes/No) of whether have any notices');
+    });
+}
+
+function notice(tin){
+    return new Promise((resolve, reject) => {
+        const https = require('http');
+        const options = {
+            hostname: BASE_HOST,
+            port: BASE_PORT,
+            path: PATH_HAVE_RECEIVED_NOCTICS+'/'+tin,//+'/'+month+'/2020',
+            method: 'GET'
+        };
+
+        const req = https.request(options, res => {
+        console.log(`statusCode: ${res.statusCode}`);
+        res.on('data', d => {
+        var jsonObj = JSON.parse(d);
+        console.log(jsonObj.res_data.isNotice);
+        resolve(jsonObj.res_data.isNotice);
+        });
+    });
+
+        req.on('error', error => {
+        console.error(error);
+        reject(error);
+    });
+        req.end();
+        });
+
+}
+//End is_notice
+//"calculate/math/paye.php?pay_period=month&salary=400000000000&benefits=0&deduct_lst=yes&deduct_social=yes&relief=0&residency=resident&email=results@calculator.co.ke&rand=34793941"
   // // Uncomment and edit to make your own intent handler
   // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
   // // below to get this function to be run when a Dialogflow intent is matched
@@ -105,7 +296,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
   intentMap.set('vat-tax-liability-1', VAT_Tax_Liability);
-  
+  intentMap.set('show-my-notices', Show_My_Notices);
+  intentMap.set('vat-ledger', Show_VAT_Ledger);
+  intentMap.set('tax-pay-defaulter', tax_pay_defaulter);
+  intentMap.set('tax-return-defaulter' , tax_return_defaulter);
+  intentMap.set('is-notice'     , is_notice);
   // intentMap.set('your intent name here', yourFunctionHandler);
   // intentMap.set('your intent name here', googleAssistantHandler);
   agent.handleRequest(intentMap);
