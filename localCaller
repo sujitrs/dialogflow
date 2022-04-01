@@ -5,14 +5,17 @@ const two='/URAChatBot/tax-pay-defaulter/vat/27ABFPD402/3/2020';
 const three='/URAChatBot/tax-return-defaulter/vat/27ABFPD402/2/2020';
 const four='/URAChatBot/is-notice/56AAE1335L';
 
+//https://nsdletax.com/URAChatBot/tax-pay-defaulter/excise/00IDT8569W/5/2020   
 const https = require('https')
 const options = {
-  hostname: 'xtest.nsdlasp.co.in',
+  hostname: 'nsdletax.com',
   port: 443,
   path: one,//two,//one,
   method: 'GET'
 }
 
+require('https').globalAgent.options.ca = require('ssl-root-cas').create();
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 const req = https.request(options, res => {
   console.log(`statusCode: ${res.statusCode}`)
   res.on('data', d => {
